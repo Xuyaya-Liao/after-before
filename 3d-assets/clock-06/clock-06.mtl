@@ -1,0 +1,39 @@
+# Blender 5.3.0 MTL File: '3D-asset_16864_autosave.blend'
+# www.blender.org
+
+newmtl blue-seconds-hand.005
+Ns 60
+Kd 0.055000 0.640000 1.000000
+Ks 0.035 0.055 0.12
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+
+newmtl casing.005
+Ns 105
+Ks 0.13 0.17 0.22
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd casing.png
+norm casing-normal.png
+
+newmtl dial.005
+Ns 48
+Ks 0.042 0.048 0.058
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd dial.png
+
+newmtl minute-hand.005
+Ns 80
+Kd 0.000130 0.036300 0.136470
+Ks 0.035 0.040 0.052
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2

@@ -1,0 +1,62 @@
+html, body {
+  margin: 0;
+  padding: 0;
+}
+canvas {
+  display: block;
+}
+
+#interaction-panel {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  color: #ebfaff;
+  font: 16px Arial, sans-serif;
+  text-align: center;
+}
+
+#interaction-panel h1 {
+  margin: 8vh 12px 0;
+  font-size: clamp(24px, 5vw, 46px);
+  font-weight: 500;
+}
+
+#asset-options {
+  position: absolute;
+  top: 73%;
+  left: 14%;
+  width: 72%;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  justify-items: center;
+  gap: 8px;
+}
+
+#interaction-panel [hidden] {
+  display: none;
+}
+
+#interaction-panel button {
+  pointer-events: auto;
+  cursor: pointer;
+  padding: 10px 14px;
+  border: 1px solid #ace8ff;
+  border-radius: 6px;
+  background: #161c64;
+  color: inherit;
+  font: inherit;
+}
+
+#interaction-panel button:hover,
+#interaction-panel button:focus-visible {
+  background: #244797;
+}
+
+#back-to-orbit {
+  position: absolute;
+  bottom: 4%;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
