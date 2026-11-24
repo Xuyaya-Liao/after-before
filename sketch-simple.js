@@ -16,8 +16,7 @@ class Item {
     }
   }
 
-  // 漂浮旋转的动画。父类和子类的 draw 都会调用它，所以只写一次。
-  // 要在 scale 之前调用，这样 translate 的单位是像素，不会被缩放影响。
+  // 漂浮旋转的动画。父类和子类的 draw 都会调用
   float() {
     rotateX(sin(frameCount * 0.003) + 1);
     rotateY(-1 + frameCount * 0.002);
@@ -36,7 +35,7 @@ class Item {
     pop();
   }
 
-  // 第五步 5b 用：详情画面和详情画面里的点击
+  // 默认的交互界面，可被子类覆盖
   drawDetail() {
     this.draw(min(width, height)*0.4)
   }
@@ -445,7 +444,7 @@ function drawChoices(picking) {
       }
       items[i].draw(size);
     }
-    
+
     pop();
   }
 }
