@@ -1,61 +1,70 @@
-// ===== 数据 =====
-
-// 五个阶段，每个阶段三件物品。
-// files：这件物品要加载的 OBJ 文件（大多数只有一个，手机和磁带机有好几个部件）。
-// models：加载好的 3D 模型会放进这里，一开始是空的。
-// 多部件物品还有 size / center / tilt，用来把几个部件摆成一个整体。、
+// ===== 物品（class）=====
+// class 必须写在 stages 前面：stages 一创建就会运行 new Item(...)，class 不会被提升。
 
 class Item {
-  constructor(name, file){
-    this.name = name
-    this.file = file
-    this.model = []
-
+  constructor(name, files) {
+    this.name = name;     // 物品名字
+    this.files = files;   // 要加载的 OBJ 路径（数组）
+    this.models = [];     // 加载好的模型放这里，一开始是空的
   }
 
-  //逐个加载模型并放在model中
-  async load(){ 
-    for (let f = 0; f < this.files.length; f++){
-      let part = await loadModel(this.file[f], {fileType: ".obj", normalize: true})
-      this.model.push(part)
+  // 逐个加载模型，放进 this.models
+  async load() {
+    for (let f = 0; f < this.files.length; f++) {
+      let part = await loadModel(this.files[f], { fileType: ".obj", normalize: true });
+      this.models.push(part);
     }
   }
-  draw(size){
-    push()
-    scale(size/200)
-    for(let m = 0; m<this.model.length; m++){
-      nidek(this.model[m])
-    rotateX(frameCount*0.01)
-    rotateY(frameCount*0.005)
+
+  // 漂浮旋转的动画。父类和子类的 draw 都会调用它，所以只写一次。
+  // 要在 scale 之前调用，这样 translate 的单位是像素，不会被缩放影响。
+  float() {
+    rotateX(sin(frameCount * 0.003) + 1);
+    rotateY(-1 + frameCount * 0.002);
+    rotateZ(PI + cos(frameCount * 0.001));
+    translate(cos(frameCount * 0.005) * 30, 0, sin(frameCount * 0.006) * 60);
+  }
+
+  // 按 size 的大小把自己画出来
+  draw(size) {
+    push();
+    this.float();
+    scale(size / 200); // normalize 以后模型大约 200 宽
+    for (let m = 0; m < this.models.length; m++) {
+      model(this.models[m]);
     }
-    pop()
+    pop();
   }
-  drawDetail(){
+
+  // 第五步 5b 用：详情画面和详情画面里的点击
+  drawDetail() {
   }
-  click(){
+
+  click() {
   }
 }
 
-//对于有多个结构成分的model，单独写一个子类class
-class MultiPartItem extends Item{
-  constructor(name, files, previewSize, center, tilt){
-    super(name, files)
-    this.previewSize = previewSizes
-    this.center = center
-    this.tilt = tilt
+// 对于有多个部件的模型（手机、磁带机），单独写一个子类
+class MultiPartItem extends Item {
+  constructor(name, files, previewSize, center, tilt) {
+    super(name, files);              // 先让 Item 的 constructor 存好 name / files / models
+    this.previewSize = previewSize;  // 整组模型原本多大
+    this.center = center;            // 整组模型的中心
+    this.tilt = tilt;                // 倾斜角度
   }
 
-  //覆盖父级的load
-  async load(){
-    for(let f = 0; f<this.files.length; f++){
-      let part = await loadModel(this.files[f], {fileType:".obj", normalize: false})
-      this.model.push(part)
+  // 覆盖父类的 load：部件不能各自 normalize，不然会散开
+  async load() {
+    for (let f = 0; f < this.files.length; f++) {
+      let part = await loadModel(this.files[f], { fileType: ".obj", normalize: false });
+      this.models.push(part);
     }
-  }  
+  }
 
-  //同样是覆盖父级的draw
-  draw(){
+  // 覆盖父类的 draw：先缩放，再倾斜，再把整组的中心移到原点
+  draw(size) {
     push();
+    this.float(); // 这个方法是从 Item 继承来的
     scale(size / this.previewSize);
     rotateX(this.tilt);
     translate(-this.center[0], -this.center[1], -this.center[2]);
@@ -66,13 +75,17 @@ class MultiPartItem extends Item{
   }
 }
 
+
+// ===== 数据 =====
+
+// 五个阶段，每个阶段三件物品
 const stages = [
   {
     title: "Childhood",
     items: [
       new Item("Yo-yo", ["3d-assets/yoyo/yoyo.obj"]),
-      new Item("toyCar", ["3d-assets/car/car.obj"]),
-      new Item("Digital-pet", ["3d-assets/pet/pet.obj"])
+      new Item("Toy car", ["3d-assets/car/car.obj"]),
+      new Item("Digital pet", ["3d-assets/pet/pet.obj"])
     ]
   },
   {
@@ -86,10 +99,24 @@ const stages = [
   {
     title: "Portable electronics",
     items: [
-      new MultiPartItem("Flip phone",
-        ["3d-assets/phone-lid/phone-base.obj", "3d-assets/phone-lid/phone-lid.obj"], 1.08217, [0, 0.15274, 0.00824], -Math.PI / 4),
       new MultiPartItem(
-      "Cassette player", [ "3d-assets/tideline-cassette-player/cassette.obj", "3d-assets/tideline-cassette-player/cassette-door.obj", "3d-assets/tideline-cassette-player/cassette-player.obj"],0.88321,[-0.21945, -0.05434, -0.21156], -Math.PI / 8),
+        "Flip phone",
+        ["3d-assets/phone-lid/phone-base.obj", "3d-assets/phone-lid/phone-lid.obj"],
+        1.08217,                  // previewSize
+        [0, 0.15274, 0.00824],    // center
+        -Math.PI / 4              // tilt
+      ),
+      new MultiPartItem(
+        "Cassette player",
+        [
+          "3d-assets/tideline-cassette-player/cassette.obj",
+          "3d-assets/tideline-cassette-player/cassette-door.obj",
+          "3d-assets/tideline-cassette-player/cassette-player.obj"
+        ],
+        0.88321,
+        [-0.21945, -0.05434, -0.21156],
+        -Math.PI / 8
+      ),
       new Item("CD", ["3d-assets/cd/cd.obj"])
     ]
   },
@@ -159,17 +186,11 @@ async function setup() {
     clocks.push(clock);
   }
 
-  // 加载 15 件物品
+  // 加载 15 件物品：每件物品自己知道怎么加载自己
   for (let s = 0; s < stages.length; s++) {
     let items = stages[s].items;
     for (let i = 0; i < items.length; i++) {
-      let item = items[i];
-      // 只有一个文件的物品让 p5 自动缩放到统一大小；多部件物品保持原来的相对位置
-      let onePart = item.files.length === 1;
-      for (let f = 0; f < item.files.length; f++) {
-        let part = await loadModel(item.files[f], { fileType: ".obj", normalize: onePart });
-        item.models.push(part);
-      }
+      await items[i].load();
     }
   }
   //===================== load所有的model ===================
@@ -387,8 +408,7 @@ function drawBall(i, radius, picking) {
     }
     sphere(40);
   } else {
-    drawItem(chosen[i], 60);
-
+    chosen[i].draw(60);
   }
   pop();
 }
@@ -411,39 +431,11 @@ function drawChoices(picking) {
       box(size);
     } else {
       if (hovered === i + 1) {
-      scale(1.15); // 鼠标悬停：稍微放大
+        scale(1.15); // 鼠标悬停：稍微放大
       }
-      drawItem(items[i], size);
+      items[i].draw(size);
     }
 
     pop();
   }
-}
-
-
-// ===== 画一件物品 =====
-
-// 轨道上、三选一画面、详情画面都用这个函数。size 是想要的大小。
-function drawItem(item, size) {
-  push();
-
-  if (item.files.length === 1) {
-    // 单个模型已经被 normalize 成大约 200 宽
-    scale(size / 200);
-  } else {
-    // 多部件：先缩放，再倾斜，再把整组的中心移到原点
-    scale(size / item.size);
-    rotateX(item.tilt);
-    translate(-item.center[0], -item.center[1], -item.center[2]);
-  }
-
-  rotateX(sin(frameCount*0.003)+1)
-  rotateY(-1+frameCount*0.002)
-  rotateZ(PI+cos(frameCount*0.001))
-  translate(cos(frameCount*0.005)*30, 0, sin(frameCount*0.006)*60) 
-  for (let m = 0; m < item.models.length; m++) {
-    model(item.models[m]);
-  }
-
-  pop();
 }
