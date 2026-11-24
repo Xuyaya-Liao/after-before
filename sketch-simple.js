@@ -3,7 +3,61 @@
 // 五个阶段，每个阶段三件物品。
 // files：这件物品要加载的 OBJ 文件（大多数只有一个，手机和磁带机有好几个部件）。
 // models：加载好的 3D 模型会放进这里，一开始是空的。
-// 多部件物品还有 size / center / tilt，用来把几个部件摆成一个整体。
+// 多部件物品还有 size / center / tilt，用来把几个部件摆成一个整体。、
+
+class Item {
+  constructor(name, file){
+    this.name = name
+    this.file = file
+    this.model = []
+
+  }
+
+  //逐个加载模型并放在model中
+  async load(){ 
+    for (let f = 0; f < this.files.length; f++){
+      let part = await loadModel(this.file[f], {fileType: ".obj", normalize: true})
+      this.model.push(part)
+    }
+  }
+  draw(size){
+    push()
+    scale(size/200)
+    for(let m = 0; m<this.model.length; m++){
+      nidek(this.model[m])
+    rotateX(frameCount*0.01)
+    rotateY(frameCount*0.005)
+    }
+    pop()
+  }
+  drawDetail(){
+  }
+  click(){
+  }
+}
+
+//对于有多个结构成分的model，单独写一个子类class
+class MultiPartItem extends Item{
+  constructor(name, files, previewSize, center, tilt){
+    super(name, files)
+    this.previewSize = previewSizes
+    this.center = center
+    this.tilt = tilt
+  }
+
+  //覆盖父级的load
+  async load(){
+    for(let f = 0; f<this.files.length; f++){
+      let part = await loadModel(this.files[f], {fileType:".obj", normalize: false})\
+      this.model.push(part)
+    }
+  }
+
+  //同样是覆盖父级的draw
+  draw(){
+    
+  }
+}
 const stages = [
   {
     title: "Childhood",
@@ -137,13 +191,14 @@ function draw() {
 
   if (view === "orbit") {
     moveOrbitCamera();
-    updateHover(); // 要在开灯之前做，灯光会改变编号颜色
+    updateHover(drawPickLayer); // 要在开灯之前做，灯光会改变编号颜色
     setLights();
     drawClock(); //调用drawClock函数在画布中心画clock
     drawOrbit(false); //调用drawOrbit函数在画布中心画轨道和光球
   } else {
+    updateHover(drawChoicePickLayer); //当显示选取视图，调用drawChoicePickLayer版本
     setLights();
-    drawChoices();
+    drawChoices(false);
   }
 }
 
@@ -168,6 +223,7 @@ function mouseWheel(event) {
   return false; // 阻止页面滚动
 }
 
+//设定灯光
 function setLights() {
   ambientLight(80, 100, 150);
   directionalLight(255, 255, 255, -0.35, 0.3, -1);
@@ -179,10 +235,14 @@ function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
 }
 
-// p5 在鼠标点一下（按下再松开）时自动调用
+// 检测点击选取
 function mouseClicked() {
   if (view === "orbit" && hovered > 0) {
     openStage(hovered - 1); // 球的编号从 1 开始，阶段下标从 0 开始
+  } else if (view === "choose" && hovered > 0) {
+    // 物品编号从 1 开始，items 下标从 0 开始，所以 hovered - 1
+    chosen[activeStage] = stages[activeStage].items[hovered - 1];
+    backToOrbit();
   }
 }
 
@@ -197,27 +257,36 @@ function openStage(stageIndex) {
 
   backButton.show();
   setCamera(choiceCam);
+  // 平行投影：远近一样大，三件物品看起来整齐。
+  // 设在相机上，而不是在 drawChoices 里每帧调用 ortho()，因为 colorPick 里调用 ortho() 会算错。
+  choiceCam.ortho();
 }
 
 function backToOrbit() {
   view = "orbit";
   backButton.hide();
   setCamera(orbitCam);
+  hovered = 0; // 清掉三选一画面留下的编号，避免下一次点击误开阶段
 }
 
 
 // ===== 鼠标悬停（GPU 拾取）=====
 
-// colorPick 会在看不见的地方把 drawPickLayer 画一遍：
-// 每颗球涂成自己编号的颜色，再读出鼠标下面那个点的颜色，就知道是第几颗球。
-function updateHover() {
-  hovered = colorPick(mouseX, mouseY, drawPickLayer);
+// colorPick 会在看不见的地方把 layer 画一遍：
+// 每个可点的东西涂成自己编号的颜色，再读出鼠标下面那个点的颜色，就知道点的是谁。
+// layer 是一个函数：轨道画面传 drawPickLayer，三选一画面传 drawChoicePickLayer。
+function updateHover(layer) {
+  hovered = colorPick(mouseX, mouseY, layer);
 
   if (hovered > 0) {
     cursor(HAND);
   } else {
     cursor(ARROW);
   }
+}
+
+function drawChoicePickLayer() {
+  drawChoices(true);
 }
 
 function drawPickLayer() {
@@ -335,16 +404,26 @@ function drawBall(i, radius, picking) {
 
 // ===== 三选一画面 =====
 
-function drawChoices() {
-  ortho(); // 平行投影：远近一样大，三件物品看起来整齐
-
+// picking 为 true 时是给 colorPick 画的：每件物品位置上画一个编号方块
+function drawChoices(picking) {
   let items = stages[activeStage].items;
   let size = min(width * 0.18, height * 0.32);
 
   for (let i = 0; i < 3; i++) {
     push();
+    // 两种画法共用这一句，方块才会正好罩在物品上
     translate((i - 1) * width * 0.24, 0, 0); // i = 0, 1, 2 → 左、中、右
-    drawItem(items[i], size);
+
+    if (picking) {
+      fill(tag(i + 1)); // 先设颜色，再画
+      box(size);
+    } else {
+      if (hovered === i + 1) {
+        scale(1.15); // 鼠标悬停：稍微放大
+      }
+      drawItem(items[i], size);
+    }
+
     pop();
   }
 }
