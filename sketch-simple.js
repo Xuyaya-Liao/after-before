@@ -48,73 +48,65 @@ class MultiPartItem extends Item{
   //覆盖父级的load
   async load(){
     for(let f = 0; f<this.files.length; f++){
-      let part = await loadModel(this.files[f], {fileType:".obj", normalize: false})\
+      let part = await loadModel(this.files[f], {fileType:".obj", normalize: false})
       this.model.push(part)
     }
-  }
+  }  
 
   //同样是覆盖父级的draw
   draw(){
-    
+    push();
+    scale(size / this.previewSize);
+    rotateX(this.tilt);
+    translate(-this.center[0], -this.center[1], -this.center[2]);
+    for (let m = 0; m < this.models.length; m++) {
+      model(this.models[m]);
+    }
+    pop();
   }
 }
+
 const stages = [
   {
     title: "Childhood",
     items: [
-      { name: "Yo-yo", files: ["3d-assets/yoyo/yoyo.obj"], models: [] },
-      { name: "Toy car", files: ["3d-assets/car/car.obj"], models: [] },
-      { name: "Digital pet", files: ["3d-assets/pet/pet.obj"], models: [] }
+      new Item("Yo-yo", ["3d-assets/yoyo/yoyo.obj"]),
+      new Item("toyCar", ["3d-assets/car/car.obj"]),
+      new Item("Digital-pet", ["3d-assets/pet/pet.obj"])
     ]
   },
   {
     title: "School",
     items: [
-      { name: "Notebook", files: ["3d-assets/blue-herbarium/blue-herbarium.obj"], models: [] },
-      { name: "Pen", files: ["3d-assets/ripple-pen/ripple-pen.obj"], models: [] },
-      { name: "Backpack", files: ["3d-assets/backpack/backpack.obj"], models: [] }
+      new Item("Notebook", ["3d-assets/blue-herbarium/blue-herbarium.obj"]),
+      new Item("Pen", ["3d-assets/ripple-pen/ripple-pen.obj"]),
+      new Item("Backpack", ["3d-assets/backpack/backpack.obj"])
     ]
   },
   {
     title: "Portable electronics",
     items: [
-      {
-        name: "Flip phone",
-        files: ["3d-assets/phone-lid/phone-base.obj", "3d-assets/phone-lid/phone-lid.obj"],
-        models: [],
-        size: 1.08217,
-        center: [0, 0.15274, 0.00824],
-        tilt: -Math.PI / 4
-      },
-      {
-        name: "Cassette player",
-        files: [
-          "3d-assets/tideline-cassette-player/cassette.obj",
-          "3d-assets/tideline-cassette-player/cassette-door.obj",
-          "3d-assets/tideline-cassette-player/cassette-player.obj"
-        ],
-        models: [],
-        size: 0.88321,
-        center: [-0.21945, -0.05434, -0.21156],
-        tilt: -Math.PI / 8
-      },
-      { name: "CD", files: ["3d-assets/cd/cd.obj"], models: [] }
+      new MultiPartItem("Flip phone",
+        ["3d-assets/phone-lid/phone-base.obj", "3d-assets/phone-lid/phone-lid.obj"], 1.08217, [0, 0.15274, 0.00824], -Math.PI / 4),
+      new MultiPartItem(
+      "Cassette player", [ "3d-assets/tideline-cassette-player/cassette.obj", "3d-assets/tideline-cassette-player/cassette-door.obj", "3d-assets/tideline-cassette-player/cassette-player.obj"],0.88321,[-0.21945, -0.05434, -0.21156], -Math.PI / 8),
+      new Item("CD", ["3d-assets/cd/cd.obj"])
     ]
   },
   {
     title: "Home electronics",
     items: [
-      { name: "Computer", files: ["3d-assets/view-crt/view-crt.obj"], models: [] },
-      { name: "TV", files: ["3d-assets/tv/tv.obj"], models: [] },
-      { name: "Fridge", files: ["3d-assets/fridge/fridge.obj"], models: [] }
+      new Item("Computer", ["3d-assets/view-crt/view-crt.obj"]),
+      new Item("TV", ["3d-assets/tv/tv.obj"]),
+      new Item("Fridge", ["3d-assets/fridge/fridge.obj"])
     ]
   },
   {
     title: "Medical equipment",
     items: [
-      { name: "IV bag", files: ["3d-assets/aqua-care-iv/aqua-care-iv.obj"], models: [] },
-      { name: "Stethoscope", files: ["3d-assets/stethoscope/stethoscope.obj"], models: [] },
-      { name: "Thermometer", files: ["3d-assets/thermometer/thermometer.obj"], models: [] }
+      new Item("IV bag", ["3d-assets/aqua-care-iv/aqua-care-iv.obj"]),
+      new Item("Stethoscope", ["3d-assets/stethoscope/stethoscope.obj"]),
+      new Item("Thermometer", ["3d-assets/thermometer/thermometer.obj"])
     ]
   }
 ];
@@ -181,7 +173,6 @@ async function setup() {
     }
   }
   //===================== load所有的model ===================
-
 
   console.log("all models loaded");
 }
@@ -397,6 +388,7 @@ function drawBall(i, radius, picking) {
     sphere(40);
   } else {
     drawItem(chosen[i], 60);
+
   }
   pop();
 }
@@ -419,7 +411,7 @@ function drawChoices(picking) {
       box(size);
     } else {
       if (hovered === i + 1) {
-        scale(1.15); // 鼠标悬停：稍微放大
+      scale(1.15); // 鼠标悬停：稍微放大
       }
       drawItem(items[i], size);
     }
@@ -445,6 +437,10 @@ function drawItem(item, size) {
     translate(-item.center[0], -item.center[1], -item.center[2]);
   }
 
+  rotateX(sin(frameCount*0.003)+1)
+  rotateY(-1+frameCount*0.002)
+  rotateZ(PI+cos(frameCount*0.001))
+  translate(cos(frameCount*0.005)*30, 0, sin(frameCount*0.006)*60) 
   for (let m = 0; m < item.models.length; m++) {
     model(item.models[m]);
   }
