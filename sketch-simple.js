@@ -38,6 +38,7 @@ class Item {
 
   // 第五步 5b 用：详情画面和详情画面里的点击
   drawDetail() {
+    this.draw(min(width, height)*0.4)
   }
 
   click() {
@@ -207,10 +208,13 @@ function draw() {
     setLights();
     drawClock(); //调用drawClock函数在画布中心画clock
     drawOrbit(false); //调用drawOrbit函数在画布中心画轨道和光球
-  } else {
+  } else if(view === "choose"){
     updateHover(drawChoicePickLayer); //当显示选取视图，调用drawChoicePickLayer版本
     setLights();
     drawChoices(false);
+  }else if(view === "detail"){
+    setLights()
+    chosen[activeStage].drawDetail()
   }
 }
 
@@ -255,6 +259,8 @@ function mouseClicked() {
     // 物品编号从 1 开始，items 下标从 0 开始，所以 hovered - 1
     chosen[activeStage] = stages[activeStage].items[hovered - 1];
     backToOrbit();
+  }else if(view === "detail"){
+    chosen[activeStage].click()
   }
 }
 
@@ -262,7 +268,11 @@ function mouseClicked() {
 // ===== 切换画面 =====
 
 function openStage(stageIndex) {
+  if(chosen[stageIndex] == null){
   view = "choose";
+  }else {
+    view = "detail"
+  }
   activeStage = stageIndex;
   hovered = 0;
   cursor(ARROW);
@@ -435,7 +445,7 @@ function drawChoices(picking) {
       }
       items[i].draw(size);
     }
-
+    
     pop();
   }
 }
