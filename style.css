@@ -6,6 +6,36 @@ canvas {
   display: block;
 }
 
+/* sketch-simple.js 用的标题和返回按钮 */
+#title {
+  position: fixed;
+  top: 8vh;
+  width: 100%;
+  text-align: center;
+  color: #ebfaff;
+  font: 500 clamp(24px, 5vw, 46px) Arial, sans-serif;
+  pointer-events: none;
+}
+
+#back {
+  position: fixed;
+  bottom: 4%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 10px 14px;
+  border: 1px solid #ace8ff;
+  border-radius: 6px;
+  background: #161c64;
+  color: #ebfaff;
+  font: 16px Arial, sans-serif;
+  cursor: pointer;
+}
+
+#back:hover {
+  background: #244797;
+}
+
+/* 旧版 sketch.js 用的面板 */
 #interaction-panel {
   position: fixed;
   inset: 0;

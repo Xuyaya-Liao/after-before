@@ -65,11 +65,30 @@ const stages = [
   }
 ];
 
-// 六个时钟模型。clocks[0] 是一件都没选时的时钟，clocks[5] 是全部选完。
+// 六个时钟模型
 let clocks = [];
 
-// 玩家在每个阶段选中的物品。null 表示这个阶段还没选。
+// 玩家在每个阶段选中的物品。null 表示这个阶段还没选
 let chosen = [null, null, null, null, null];
+
+// 现在显示哪个画面
+let view = "orbit";
+// 当前stage
+let activeStage = 0;
+// 鼠标下面是第几颗球
+let hovered = 0;
+
+// 两台相机：轨道和选择
+let orbitCam;
+let choiceCam;
+
+// 轨道相机：zoom 是滚轮调的距离倍数，lookX / lookY 是相机现在的偏移
+let zoom = 1.5;
+let lookX = 0;
+let lookY = 0;
+
+// 返回按钮
+let backButton;
 
 
 // ===== p5 入口 =====
@@ -77,6 +96,16 @@ let chosen = [null, null, null, null, null];
 async function setup() {
   createCanvas(windowWidth, windowHeight, WEBGL);
 
+  orbitCam = createCamera();
+  choiceCam = createCamera();
+  setCamera(orbitCam);
+
+  backButton = createButton("Back to orbit");
+  backButton.id("back");
+  backButton.mouseClicked(backToOrbit);
+  backButton.hide();
+
+  //=================== load所有的model ===================
   // 加载六个时钟：clock-01 到 clock-06
   for (let i = 1; i <= 6; i++) {
     let path = "3d-assets/clock-0" + i + "/clock-0" + i + ".obj";
@@ -97,31 +126,113 @@ async function setup() {
       }
     }
   }
+  //===================== load所有的model ===================
+
 
   console.log("all models loaded");
 }
 
 function draw() {
   background("blue");
-  orbitControl();
 
+  if (view === "orbit") {
+    moveOrbitCamera();
+    updateHover(); // 要在开灯之前做，灯光会改变编号颜色
+    setLights();
+    drawClock(); //调用drawClock函数在画布中心画clock
+    drawOrbit(false); //调用drawOrbit函数在画布中心画轨道和光球
+  } else {
+    setLights();
+    drawChoices();
+  }
+}
+
+// 控制 orbit 界面视角跟随鼠标晃动
+function moveOrbitCamera() {
+  let targetX = map(mouseX, 0, width, 150, -150, true);
+  let targetY = map(mouseY, 0, height, 150, -150, true);
+
+  lookX = lerp(lookX, targetX, 0.05);
+  lookY = lerp(lookY, targetY, 0.05);
+
+  let distance = (height / 2) / tan(PI / 6) * zoom;
+  orbitCam.camera(lookX, lookY, distance, 0, 0, 0, 0, 1, 0);
+}
+
+// p5 在滚动滚轮时自动调用
+function mouseWheel(event) {
+  if (view === "orbit") {
+    zoom += event.delta * 0.0005;
+    zoom = constrain(zoom, 1.2, 2);
+  }
+  return false; // 阻止页面滚动
+}
+
+function setLights() {
   ambientLight(80, 100, 150);
   directionalLight(255, 255, 255, -0.35, 0.3, -1);
   directionalLight(85, 110, 150, 1, 0, -0.4);
   noStroke();
-
-  drawClock();
-  drawOrbit();
 }
 
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
 }
 
+// p5 在鼠标点一下（按下再松开）时自动调用
+function mouseClicked() {
+  if (view === "orbit" && hovered > 0) {
+    openStage(hovered - 1); // 球的编号从 1 开始，阶段下标从 0 开始
+  }
+}
+
+
+// ===== 切换画面 =====
+
+function openStage(stageIndex) {
+  view = "choose";
+  activeStage = stageIndex;
+  hovered = 0;
+  cursor(ARROW);
+
+  backButton.show();
+  setCamera(choiceCam);
+}
+
+function backToOrbit() {
+  view = "orbit";
+  backButton.hide();
+  setCamera(orbitCam);
+}
+
+
+// ===== 鼠标悬停（GPU 拾取）=====
+
+// colorPick 会在看不见的地方把 drawPickLayer 画一遍：
+// 每颗球涂成自己编号的颜色，再读出鼠标下面那个点的颜色，就知道是第几颗球。
+function updateHover() {
+  hovered = colorPick(mouseX, mouseY, drawPickLayer);
+
+  if (hovered > 0) {
+    cursor(HAND);
+  } else {
+    cursor(ARROW);
+  }
+}
+
+function drawPickLayer() {
+  // 时钟只写入“深度”、不写颜色：看不见，但能挡住它背后的球
+  drawingContext.colorMask(false, false, false, false);
+  drawClock();
+  drawingContext.colorMask(true, true, true, true);
+
+  drawOrbit(true);
+}
+
 
 // ===== 时钟 =====
 
-// 数一数已经选了几件
+// 数已经选了几件(决定时钟状态和背景的鱼)
 function countChosen() {
   let count = 0;
   for (let i = 0; i < chosen.length; i++) {
@@ -147,8 +258,9 @@ function drawClock() {
 
 // ===== 轨道和光球 =====
 
-function drawOrbit() {
-  let radius = min(width, height) * 0.4;
+// picking 为 true 时是给 colorPick 画的：只画编号球，不画圆环
+function drawOrbit(picking) {
+  let radius = min(width, height) * 0.5; 
 
   push();
   // 把原点移到时钟指针的转轴上，轨道就绕着指针转
@@ -156,30 +268,34 @@ function drawOrbit() {
 
   // 主轨道：一个圆环 + 五颗光球，用同一组旋转
   push();
-  scale(1.3);
+  scale(1.4);
   rotateX(-PI / 2);
   rotateZ(-PI / 6 + frameCount * 0.005);
   rotateY(0.2 + sin(frameCount * 0.003) * 0.15);
-  drawRing(radius, 100, 0.5);
+  if (picking === false) {
+    drawRing(radius, 100, 0.5);
+  }
   for (let i = 0; i < 5; i++) {
-    drawBall(i, radius);
+    drawBall(i, radius, picking);
   }
   pop();
 
   // 两条装饰轨道，只有圆环
-  push();
-  rotateX(-PI / 2 - 0.01);
-  rotateZ(PI / 6 + sin(frameCount * 0.003) * 0.4);
-  rotateY(0.3 - sin(frameCount * 0.002) * 0.2);
-  drawRing(radius, 110, 1);
-  pop();
+  if (picking === false) {
+    push();
+    rotateX(-PI / 2 - 0.01);
+    rotateZ(PI / 6 + sin(frameCount * 0.003) * 0.4);
+    rotateY(0.3 - sin(frameCount * 0.002) * 0.2);
+    drawRing(radius, 110, 1);
+    pop();
 
-  push();
-  rotateX(PI / 2 + 0.01);
-  rotateZ(PI / 12 + sin(frameCount * 0.003) * 0.5);
-  rotateY(0.4 + sin(frameCount * 0.002) * 0.01);
-  drawRing(radius, 110, 4);
-  pop();
+    push();
+    rotateX(PI / 2 + 0.01);
+    rotateZ(PI / 12 + sin(frameCount * 0.003) * 0.5);
+    rotateY(0.4 + sin(frameCount * 0.002) * 0.01);
+    drawRing(radius, 110, 4);
+    pop();
+  }
 
   pop();
 }
@@ -194,19 +310,43 @@ function drawRing(radius, opacity, weight) {
   pop();
 }
 
-// 第 i 颗光球。还没选：画发光球；选过了：画选中的物品。
-function drawBall(i, radius) {
+// 第 i 颗光球。拾取时：涂编号颜色；还没选：画发光球；选过了：画选中的物品。
+function drawBall(i, radius, picking) {
   let angle = -HALF_PI + TWO_PI * (i + 0.4) / 5;
 
   push();
   translate(cos(angle) * radius, sin(angle) * radius, 0);
-  if (chosen[i] === null) {
-    emissiveMaterial(120, 225, 255);
+  if (picking) {
+    fill(tag(i + 1)); // tag() 把编号 1–5 变成一种特别的颜色
+    sphere(40);
+  } else if (chosen[i] === null) {
+    if (hovered === i + 1) {
+      emissiveMaterial(255, 120, 45); // 鼠标悬停：暖橙色
+    } else {
+      emissiveMaterial(120, 225, 255);
+    }
     sphere(40);
   } else {
     drawItem(chosen[i], 60);
   }
   pop();
+}
+
+
+// ===== 三选一画面 =====
+
+function drawChoices() {
+  ortho(); // 平行投影：远近一样大，三件物品看起来整齐
+
+  let items = stages[activeStage].items;
+  let size = min(width * 0.18, height * 0.32);
+
+  for (let i = 0; i < 3; i++) {
+    push();
+    translate((i - 1) * width * 0.24, 0, 0); // i = 0, 1, 2 → 左、中、右
+    drawItem(items[i], size);
+    pop();
+  }
 }
 
 

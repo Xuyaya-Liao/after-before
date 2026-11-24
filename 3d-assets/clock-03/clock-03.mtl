@@ -1,39 +1,71 @@
-# Blender 5.3.0 MTL File: '3D-asset_16864_autosave.blend'
-# www.blender.org
+# After Before clock materials
 
-newmtl blue-seconds-hand.002
-Ns 60
-Kd 0.055000 0.640000 1.000000
-Ks 0.035 0.055 0.12
-Ke 0.000000 0.000000 0.000000
-Ni 1.500000
-d 1.000000
-illum 2
+newmtl carbon_black
+Kd 0.0666667 0.0666667 0.0862745
+Ka 0.0666667 0.0666667 0.0862745
+Ks 0 0 0
+illum 1
 
-newmtl casing.002
-Ns 105
-Ks 0.13 0.17 0.22
-Ke 0.000000 0.000000 0.000000
-Ni 1.500000
-d 1.000000
-illum 2
-map_Kd casing.png
-norm casing-normal.png
+newmtl paper_white
+Kd 1.0000000 1.0000000 1.0000000
+Ka 1.0000000 1.0000000 1.0000000
+Ks 0 0 0
+illum 1
 
-newmtl dial.002
-Ns 48
-Ks 0.042 0.048 0.058
-Ke 0.000000 0.000000 0.000000
-Ni 1.500000
-d 1.000000
+newmtl silver_edge
+Kd 0.6588235 0.6705882 0.7137255
+Ka 0.6588235 0.6705882 0.7137255
+Ks 0 0 0
+illum 1
+
+newmtl graphite
+Kd 0.2078431 0.2078431 0.2549020
+Ka 0.2078431 0.2078431 0.2549020
+Ks 0 0 0
+illum 1
+
+newmtl brushed_silver_hands
+Kd 1 1 1
+Ka 0.52 0.54 0.56
+Ks 0.24 0.25 0.27
+Ns 92
 illum 2
+map_Kd silver-hands.png
+
+newmtl lime_jelly
+Kd 1 1 1
+Ka 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd lime-jelly.png
+
+newmtl fine_print
+Kd 0.3176471 0.3215686 0.3764706
+Ka 0.3176471 0.3215686 0.3764706
+Ks 0 0 0
+illum 1
+
+newmtl swept_blue
+Kd 0.0000000 0.0000000 1.0000000
+Ka 0.0000000 0.0000000 1.0000000
+Ks 0 0 0
+illum 1
+
+newmtl blue_hour_marks
+Kd 0.7725490 0.8000000 1.0000000
+Ka 0.7725490 0.8000000 1.0000000
+Ks 0 0 0
+illum 1
+
+newmtl blue_minute_marks
+Kd 0.5137255 0.5607843 1.0000000
+Ka 0.5137255 0.5607843 1.0000000
+Ks 0 0 0
+illum 1
+
+newmtl white_cd_foil
+Kd 1 1 1
+Ka 1 1 1
+Ks 0 0 0
+illum 1
 map_Kd dial.png
-
-newmtl minute-hand.002
-Ns 80
-Kd 0.000130 0.036300 0.136470
-Ks 0.035 0.040 0.052
-Ke 0.000000 0.000000 0.000000
-Ni 1.500000
-d 1.000000
-illum 2
