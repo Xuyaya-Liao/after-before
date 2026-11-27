@@ -417,5 +417,47 @@
         "triangles": 1260
       }
     ]
+  },
+  "3d-assets/goldfish/goldfish-body.obj": {
+    "atlas": "3d-assets/goldfish/albedo.jpg",
+    "translucent": {},
+    "bounds": [
+      [
+        -100.0,
+        -39.55571365356445,
+        -12.948002815246582
+      ],
+      [
+        100.0,
+        39.55571365356445,
+        12.948002815246582
+      ]
+    ],
+    "space": "p5 WEBGL: +X right, -Y up, +Z front",
+    "parts": [
+      {
+        "file": "3d-assets/goldfish/goldfish-body.obj",
+        "opaque": true,
+        "triangles": 86
+      },
+      {
+        "file": "3d-assets/goldfish/goldfish-tail.obj",
+        "opaque": true,
+        "triangles": 20
+      }
+    ],
+    "hinge": {
+      "part": "goldfish-tail.obj",
+      "pivot": [
+        47.44968032836914,
+        -1.0331701040267944,
+        0.0
+      ],
+      "axis": [
+        0,
+        1,
+        0
+      ]
+    }
   }
 }

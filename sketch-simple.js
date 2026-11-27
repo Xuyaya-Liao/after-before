@@ -1,6 +1,40 @@
 // ===== 物品（class）=====
 // class 必须写在 stages 前面：stages 一创建就会运行 new Item(...)，class 不会被提升。
 
+
+// 六个时钟模型
+let clocks = [];
+
+// 玩家在每个阶段选中的物品。null 表示这个阶段还没选
+let chosen = [null, null, null, null, null];
+
+// 现在显示哪个画面
+let view = "orbit";
+// 当前stage
+let activeStage = 0;
+// 鼠标下面是第几颗球
+let hovered = 0;
+
+// 三台相机：金鱼背景、轨道、选择
+let fishCam;
+let orbitCam;
+let choiceCam;
+
+// 轨道相机：zoom 是滚轮调的距离倍数，lookX / lookY 是相机现在的偏移
+let zoom = 1.5;
+let lookX = 0;
+let lookY = 0;
+
+// 返回按钮
+let backButton;
+
+// 金鱼：模型只加载一份，所有鱼共用；fishes 装着每一只在游的鱼
+let fishBody;
+let fishTail;
+let fishTexture;
+let fishes = [];
+
+
 class Item {
   constructor(name, files) {
     this.name = name;     // 物品名字
@@ -27,8 +61,9 @@ class Item {
 
   // 所有物品从同一个正面开始，再以自己的几何中心轻轻转动。
   float() {
-    rotateX(sin(frameCount * 0.003) * 0.14);
-    rotateY(sin(frameCount * 0.004) * 0.4);
+    rotateX(sin(frameCount * 0.003) * 0.25);
+    rotateY(cos(frameCount * 0.0045) * 0.4);
+    translate(0,sin(frameCount*0.007)*25,0)
   }
 
   draw(size) {
@@ -57,6 +92,15 @@ class Item {
     pop();
   }
 
+  // 给 colorPick 画的点击区域。颜色由调用的地方先 fill(tag(...))。
+  // 和 draw() 调用同一个 float()，所以点击区域一定跟着物品漂浮。
+  drawPick(size) {
+    push();
+    this.float();     // 和 draw() 一样的漂浮
+    box(size);        // 用方块当点击区域（和测试用的白色线框一样大）
+    pop();
+  }
+
   drawDetail() {
     this.draw(min(width, height)*0.4)
   }
@@ -65,6 +109,53 @@ class Item {
   }
 }
 
+// 背景里的一只金鱼。每选中一件物品，就 new 一只。
+class Fish {
+  constructor() {
+    this.size = random(80, 550);                      // 大小
+    this.speed = random(0.8, 2.5);                    // 每帧游多远
+    this.y = random(-height* 0.9, height * 0.9);   // 高度
+    this.z = random(-1000, -500);                     // 在时钟后面
+    this.phase = random(TWO_PI);                      // 尾巴摆动的起点，让每只鱼错开
+
+    // 鱼游出画面的边界：离相机越远，能看到的范围越宽（相似三角形），再加半条鱼长
+    let camDist = (height / 2) / tan(PI / 6);         // fishCam 离原点的距离
+    this.edge = width / 2 * (camDist - this.z) / camDist + this.size / 2;
+
+    this.x = -this.edge;                              // 从画面左边外面出发（要在 edge 算好之后）
+  }
+
+  // 每帧往右游一点；从右边完全游出去，就回到左边外面
+  move() {
+    this.x += this.speed;
+    if (this.x > this.edge) {
+      this.x = -this.edge;
+    }
+  }
+
+  draw() {
+    push();
+    translate(this.x, this.y, this.z);
+
+    // fishCam 永远在正前方，鱼本来就正对着它，不用再转
+    // 模型的鱼头朝左，转 180° 让它朝右游
+    rotateY(PI);
+    scale(this.size / 200);
+    noLights();
+    texture(fishTexture);
+    model(fishBody);
+
+    //尾巴摆动
+    push();
+    translate(47, 0, 0);     // 把原点移到尾巴和身体的连接处
+    rotateY(sin(frameCount * 0.1 * (this.speed-this.size/400) + this.phase) * 0.5);
+    translate(-47, 0, 0);    // 移回来，模型就会绕连接处转
+    model(fishTail);
+    pop();
+
+    pop();
+  }
+}
 
 // ===== 数据 =====
 
@@ -119,37 +210,13 @@ const stages = [
   }
 ];
 
-// 六个时钟模型
-let clocks = [];
-
-// 玩家在每个阶段选中的物品。null 表示这个阶段还没选
-let chosen = [null, null, null, null, null];
-
-// 现在显示哪个画面
-let view = "orbit";
-// 当前stage
-let activeStage = 0;
-// 鼠标下面是第几颗球
-let hovered = 0;
-
-// 两台相机：轨道和选择
-let orbitCam;
-let choiceCam;
-
-// 轨道相机：zoom 是滚轮调的距离倍数，lookX / lookY 是相机现在的偏移
-let zoom = 1.5;
-let lookX = 0;
-let lookY = 0;
-
-// 返回按钮
-let backButton;
-
 
 // ===== p5 入口 =====
 
 async function setup() {
   createCanvas(windowWidth, windowHeight, WEBGL);
 
+  fishCam = createCamera();   // 金鱼专用，永远不动
   orbitCam = createCamera();
   choiceCam = createCamera();
   setCamera(orbitCam);
@@ -176,6 +243,12 @@ async function setup() {
       await item.load(propMaterials[item.files[0]]);
     }
   }
+  
+  //金鱼model
+  fishBody = await loadModel("3d-assets/goldfish/goldfish-body.obj", { fileType: ".obj", normalize: false });
+  fishTail = await loadModel("3d-assets/goldfish/goldfish-tail.obj", { fileType: ".obj", normalize: false });
+  fishTexture = await loadImage("3d-assets/goldfish/albedo.jpg");
+
   //===================== load所有的model ===================
 
   console.log("all models loaded");
@@ -188,6 +261,15 @@ function draw() {
     moveOrbitCamera();
     updateHover(drawPickLayer); // 要在开灯之前做，灯光会改变编号颜色
     setLights();
+
+    // 金鱼用固定的相机画，不受鼠标视角和滚轮影响
+    setCamera(fishCam);
+    for (let i = 0; i < fishes.length; i++) { // 更新并画出金鱼
+      fishes[i].move();
+      fishes[i].draw();
+    }
+
+    setCamera(orbitCam); // 切回轨道相机，画时钟和轨道
     drawClock(); //调用drawClock函数在画布中心画clock
     drawOrbit(false); //调用drawOrbit函数在画布中心画轨道和光球
   } else if(view === "choose"){
@@ -241,6 +323,7 @@ function mouseClicked() {
     // 物品编号从 1 开始，items 下标从 0 开始，所以 hovered - 1
     chosen[activeStage] = stages[activeStage].items[hovered - 1];
     backToOrbit();
+    fishes.push(new Fish()); // 每选一件，背景多一只金鱼
   }else if(view === "detail"){
     chosen[activeStage].click()
   }
@@ -344,7 +427,7 @@ function drawOrbit(picking) {
   scale(1.4);
   rotateX(-PI / 2);
   rotateZ(-PI / 6 + frameCount * 0.005);
-  rotateY(0.2 + sin(frameCount * 0.003) * 0.15);
+  rotateY(0.2 + sin(frameCount * 0.002) * 0.15);
   if (picking === false) {
     drawRing(radius, 100, 0.5);
   }
@@ -389,9 +472,27 @@ function drawBall(i, radius, picking) {
 
   push();
   translate(cos(angle) * radius, sin(angle) * radius, 0);
+  // 选过物品的格子：先做朝外 + 漂浮的变换。
+  // 写在 if (picking) 前面，正常画面和拾取画面才会用同一组变换。
+  if (chosen[i] !== null) {
+    // 让物品在轨道上正面朝外
+    rotateZ(angle);      // 1. 按它在圆上的位置转，让“向外”的方向对准它
+    rotateX(HALF_PI);    // 2. 从“躺平”立起来
+    rotateY(HALF_PI);    // 3. 让正面对准“向外”的方向
+
+    // 物品在轨道上的旋转 / 漂浮
+    rotateY(frameCount * 0.008);
+    rotateZ(sin(frameCount * 0.001) * 0.8);
+    translate(0, sin(frameCount * 0.0065) * 80, 0);
+  }
+
   if (picking) {
     fill(tag(i + 1)); // tag() 把编号 1–5 变成一种特别的颜色
-    sphere(40);
+    if (chosen[i] === null) {
+      sphere(40);
+    } else {
+      chosen[i].drawPick(60);
+    }
   } else if (chosen[i] === null) {
     if (hovered === i + 1) {
       emissiveMaterial(255, 120, 45); // 鼠标悬停：暖橙色
@@ -420,7 +521,7 @@ function drawChoices(picking) {
 
     if (picking) {
       fill(tag(i + 1)); // 先设颜色，再画
-      box(size);
+      items[i].drawPick(size); // 方块跟着物品一起漂浮
     } else {
       if (hovered === i + 1) {
         scale(1.15); // 鼠标悬停：稍微放大
