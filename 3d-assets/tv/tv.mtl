@@ -1,42 +1,6 @@
-# Blender 5.3.0 MTL File: '.cclab-export-snapshot.blend'
-# www.blender.org
-
-newmtl AQUA_CHANNEL_|_Aquarium_channel_glass
-Ns 504.100067
-Ka 0.020000 0.020000 0.020000
-Ks 0.190000 0.190000 0.190000
-Ni 1.500000
-d 0.700000
-illum 6
-map_Kd screen.png
-map_Ke screen.png
-
-newmtl AQUA_CHANNEL_|_Pearl-silver_front_frame
-Ns 504.100067
-Ka 0.800000 0.800000 0.800000
-Kd 0.362708 0.601674 0.907795
-Ks 0.500000 0.500000 0.500000
-Ke 0.000000 0.000000 0.000000
-Ni 1.500000
-d 1.000000
-illum 3
-
-newmtl AQUA_CHANNEL_|_Printed_control_strip
-Ns 336.400055
-Ka 0.140000 0.140000 0.140000
-Ks 0.280000 0.280000 0.280000
-Ke 0.000000 0.000000 0.000000
-Ni 1.500000
-d 1.000000
-illum 3
-map_Kd controls.png
-
-newmtl AQUA_CHANNEL_|_Smoked_indigo_screen_gasket
-Ns 313.600006
-Ka 1.000000 1.000000 1.000000
-Kd 0.011612 0.024158 0.074214
-Ks 0.500000 0.500000 0.500000
-Ke 0.000000 0.000000 0.000000
-Ni 1.500000
-d 1.000000
-illum 2
+newmtl atlas
+Ka 1 1 1
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd albedo.png

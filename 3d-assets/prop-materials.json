@@ -1,0 +1,421 @@
+{
+  "3d-assets/yoyo/yoyo.obj": {
+    "atlas": "3d-assets/yoyo/albedo.png",
+    "translucent": {
+      "3d-assets/yoyo/yoyo.obj": "3d-assets/yoyo/yoyo-clear.obj"
+    },
+    "bounds": [
+      [
+        -100.0,
+        -46.30874252319336,
+        -21.07853126525879
+      ],
+      [
+        100.0,
+        46.30874252319336,
+        21.07853126525879
+      ]
+    ],
+    "space": "p5 WEBGL: +X right, -Y up, +Z front",
+    "parts": [
+      {
+        "file": "3d-assets/yoyo/yoyo.obj",
+        "opaque": true,
+        "triangles": 11686
+      }
+    ]
+  },
+  "3d-assets/car/car.obj": {
+    "atlas": "3d-assets/car/albedo.png",
+    "translucent": {
+      "3d-assets/car/car.obj": "3d-assets/car/car-clear.obj"
+    },
+    "bounds": [
+      [
+        -48.76054000854492,
+        -30.287904739379883,
+        -100.0
+      ],
+      [
+        48.76054000854492,
+        30.287904739379883,
+        100.0
+      ]
+    ],
+    "space": "p5 WEBGL: +X right, -Y up, +Z front",
+    "parts": [
+      {
+        "file": "3d-assets/car/car.obj",
+        "opaque": true,
+        "triangles": 20521
+      }
+    ]
+  },
+  "3d-assets/pet/pet.obj": {
+    "atlas": "3d-assets/pet/albedo.png",
+    "translucent": {
+      "3d-assets/pet/pet.obj": "3d-assets/pet/pet-clear.obj"
+    },
+    "bounds": [
+      [
+        -71.45589447021484,
+        -100.0,
+        -7.8286848068237305
+      ],
+      [
+        71.45589447021484,
+        100.0,
+        7.8286848068237305
+      ]
+    ],
+    "space": "p5 WEBGL: +X right, -Y up, +Z front",
+    "parts": [
+      {
+        "file": "3d-assets/pet/pet.obj",
+        "opaque": true,
+        "triangles": 7474
+      }
+    ]
+  },
+  "3d-assets/blue-herbarium/blue-herbarium.obj": {
+    "atlas": "3d-assets/blue-herbarium/albedo.png",
+    "translucent": {},
+    "bounds": [
+      [
+        -64.74128723144531,
+        -100.0,
+        -13.098320007324219
+      ],
+      [
+        64.74128723144531,
+        100.0,
+        13.098320007324219
+      ]
+    ],
+    "space": "p5 WEBGL: +X right, -Y up, +Z front",
+    "parts": [
+      {
+        "file": "3d-assets/blue-herbarium/blue-herbarium.obj",
+        "opaque": true,
+        "triangles": 12228
+      }
+    ]
+  },
+  "3d-assets/ripple-pen/ripple-pen.obj": {
+    "atlas": "3d-assets/ripple-pen/albedo.png",
+    "translucent": {
+      "3d-assets/ripple-pen/ripple-pen.obj": "3d-assets/ripple-pen/ripple-pen-clear.obj"
+    },
+    "bounds": [
+      [
+        -9.94664192199707,
+        -100.0,
+        -7.994351387023926
+      ],
+      [
+        9.94664192199707,
+        100.0,
+        7.994351387023926
+      ]
+    ],
+    "space": "p5 WEBGL: +X right, -Y up, +Z front",
+    "parts": [
+      {
+        "file": "3d-assets/ripple-pen/ripple-pen.obj",
+        "opaque": true,
+        "triangles": 1756
+      }
+    ]
+  },
+  "3d-assets/backpack/backpack.obj": {
+    "atlas": "3d-assets/backpack/albedo.png",
+    "translucent": {},
+    "bounds": [
+      [
+        -73.74778747558594,
+        -99.99999237060547,
+        -67.50617218017578
+      ],
+      [
+        73.74778747558594,
+        99.99999237060547,
+        67.50617218017578
+      ]
+    ],
+    "space": "p5 WEBGL: +X right, -Y up, +Z front",
+    "parts": [
+      {
+        "file": "3d-assets/backpack/backpack.obj",
+        "opaque": true,
+        "triangles": 41594
+      }
+    ]
+  },
+  "3d-assets/phone-lid/phone-base.obj": {
+    "atlas": "3d-assets/phone-lid/albedo.png",
+    "translucent": {},
+    "bounds": [
+      [
+        -31.5258731842041,
+        -100.0,
+        -32.77089309692383
+      ],
+      [
+        31.5258731842041,
+        100.0,
+        32.77089309692383
+      ]
+    ],
+    "space": "p5 WEBGL: +X right, -Y up, +Z front",
+    "parts": [
+      {
+        "file": "3d-assets/phone-lid/phone-base.obj",
+        "opaque": true,
+        "triangles": 120448
+      },
+      {
+        "file": "3d-assets/phone-lid/phone-lid.obj",
+        "opaque": true,
+        "triangles": 8946
+      }
+    ],
+    "hinge": {
+      "part": "phone-lid.obj",
+      "pivot": [
+        0.00018772167095448822,
+        14.541397094726562,
+        -24.538280487060547
+      ],
+      "axis": [
+        -1.0,
+        -0.0,
+        -0.0
+      ]
+    }
+  },
+  "3d-assets/tideline-cassette-player/cassette.obj": {
+    "atlas": "3d-assets/tideline-cassette-player/albedo.png",
+    "translucent": {
+      "3d-assets/tideline-cassette-player/cassette-door.obj": "3d-assets/tideline-cassette-player/cassette-door.obj"
+    },
+    "bounds": [
+      [
+        -60.39598083496094,
+        -96.74998474121094,
+        -100.0
+      ],
+      [
+        60.39598083496094,
+        96.74998474121094,
+        99.99999237060547
+      ]
+    ],
+    "space": "p5 WEBGL: +X right, -Y up, +Z front",
+    "parts": [
+      {
+        "file": "3d-assets/tideline-cassette-player/cassette.obj",
+        "opaque": true,
+        "triangles": 12932
+      },
+      {
+        "file": "3d-assets/tideline-cassette-player/cassette-door.obj",
+        "opaque": false,
+        "triangles": 4499
+      },
+      {
+        "file": "3d-assets/tideline-cassette-player/cassette-player.obj",
+        "opaque": true,
+        "triangles": 48684
+      }
+    ],
+    "hinge": {
+      "part": "cassette-door.obj",
+      "pivot": [
+        22.861528396606445,
+        -11.904731750488281,
+        48.118919372558594
+      ],
+      "axis": [
+        -0.0,
+        1.0,
+        -0.0
+      ]
+    }
+  },
+  "3d-assets/cd/cd.obj": {
+    "atlas": "3d-assets/cd/albedo.png",
+    "translucent": {
+      "3d-assets/cd/cd.obj": "3d-assets/cd/cd-clear.obj"
+    },
+    "bounds": [
+      [
+        -96.3522720336914,
+        -100.0,
+        -69.35266876220703
+      ],
+      [
+        96.3522720336914,
+        100.0,
+        69.35266876220703
+      ]
+    ],
+    "space": "p5 WEBGL: +X right, -Y up, +Z front",
+    "parts": [
+      {
+        "file": "3d-assets/cd/cd.obj",
+        "opaque": true,
+        "triangles": 82988
+      }
+    ]
+  },
+  "3d-assets/view-crt/view-crt.obj": {
+    "atlas": "3d-assets/view-crt/albedo.png",
+    "translucent": {
+      "3d-assets/view-crt/view-crt.obj": "3d-assets/view-crt/view-crt-clear.obj"
+    },
+    "bounds": [
+      [
+        -100.0,
+        -37.057071685791016,
+        -95.06695556640625
+      ],
+      [
+        100.0,
+        37.057071685791016,
+        95.06695556640625
+      ]
+    ],
+    "space": "p5 WEBGL: +X right, -Y up, +Z front",
+    "parts": [
+      {
+        "file": "3d-assets/view-crt/view-crt.obj",
+        "opaque": true,
+        "triangles": 23968
+      }
+    ]
+  },
+  "3d-assets/tv/tv.obj": {
+    "atlas": "3d-assets/tv/albedo.png",
+    "translucent": {},
+    "bounds": [
+      [
+        -100.0,
+        -90.00000762939453,
+        -75.0
+      ],
+      [
+        100.0,
+        90.00000762939453,
+        75.0
+      ]
+    ],
+    "space": "p5 WEBGL: +X right, -Y up, +Z front",
+    "parts": [
+      {
+        "file": "3d-assets/tv/tv.obj",
+        "opaque": true,
+        "triangles": 64
+      }
+    ]
+  },
+  "3d-assets/fridge/fridge.obj": {
+    "atlas": "3d-assets/fridge/albedo.png",
+    "translucent": {},
+    "bounds": [
+      [
+        -50.819427490234375,
+        -100.0,
+        -48.55399703979492
+      ],
+      [
+        50.819427490234375,
+        100.0,
+        48.55399703979492
+      ]
+    ],
+    "space": "p5 WEBGL: +X right, -Y up, +Z front",
+    "parts": [
+      {
+        "file": "3d-assets/fridge/fridge.obj",
+        "opaque": true,
+        "triangles": 1109
+      }
+    ]
+  },
+  "3d-assets/aqua-care-iv/aqua-care-iv.obj": {
+    "atlas": "3d-assets/aqua-care-iv/albedo.png",
+    "translucent": {
+      "3d-assets/aqua-care-iv/aqua-care-iv.obj": "3d-assets/aqua-care-iv/aqua-care-iv-clear.obj"
+    },
+    "bounds": [
+      [
+        -32.89982604980469,
+        -100.0,
+        -13.275541305541992
+      ],
+      [
+        32.89982604980469,
+        100.0,
+        13.275541305541992
+      ]
+    ],
+    "space": "p5 WEBGL: +X right, -Y up, +Z front",
+    "parts": [
+      {
+        "file": "3d-assets/aqua-care-iv/aqua-care-iv.obj",
+        "opaque": true,
+        "triangles": 4302
+      }
+    ]
+  },
+  "3d-assets/stethoscope/stethoscope.obj": {
+    "atlas": "3d-assets/stethoscope/albedo.png",
+    "translucent": {},
+    "bounds": [
+      [
+        -59.988990783691406,
+        -100.0,
+        -5.5844526290893555
+      ],
+      [
+        59.988990783691406,
+        100.0,
+        5.5844526290893555
+      ]
+    ],
+    "space": "p5 WEBGL: +X right, -Y up, +Z front",
+    "parts": [
+      {
+        "file": "3d-assets/stethoscope/stethoscope.obj",
+        "opaque": true,
+        "triangles": 2376
+      }
+    ]
+  },
+  "3d-assets/thermometer/thermometer.obj": {
+    "atlas": "3d-assets/thermometer/albedo.png",
+    "translucent": {
+      "3d-assets/thermometer/thermometer.obj": "3d-assets/thermometer/thermometer-clear.obj"
+    },
+    "bounds": [
+      [
+        -100.0,
+        -37.5001106262207,
+        -11.710341453552246
+      ],
+      [
+        100.0,
+        37.5001106262207,
+        11.710341453552246
+      ]
+    ],
+    "space": "p5 WEBGL: +X right, -Y up, +Z front",
+    "parts": [
+      {
+        "file": "3d-assets/thermometer/thermometer.obj",
+        "opaque": true,
+        "triangles": 1260
+      }
+    ]
+  }
+}

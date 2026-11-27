@@ -8,70 +8,60 @@ class Item {
     this.models = [];     // 加载好的模型放这里，一开始是空的
   }
 
-  // 逐个加载模型，放进 this.models
-  async load() {
-    for (let f = 0; f < this.files.length; f++) {
-      let part = await loadModel(this.files[f], { fileType: ".obj", normalize: true });
-      this.models.push(part);
+  // 每件物品的 OBJ 已经居中，并统一成 200 单位的最大边长。
+  async load(assetInfo) {
+    this.artwork = await loadImage(assetInfo.atlas);
+    this.clearModels = [];
+
+    for (let part of assetInfo.parts) {
+      if (part.opaque) {
+        this.models.push(await loadModel(part.file, { fileType: ".obj", normalize: false }));
+      }
+
+      let clearFile = assetInfo.translucent[part.file];
+      if (clearFile) {
+        this.clearModels.push(await loadModel(clearFile, { fileType: ".obj", normalize: false }));
+      }
     }
   }
 
-  // 漂浮旋转的动画。父类和子类的 draw 都会调用
+  // 所有物品从同一个正面开始，再以自己的几何中心轻轻转动。
   float() {
-    rotateX(sin(frameCount * 0.003) + 1);
-    rotateY(-1 + frameCount * 0.002);
-    rotateZ(PI + cos(frameCount * 0.001));
-    translate(cos(frameCount * 0.005) * 30, 0, sin(frameCount * 0.006) * 60);
+    rotateX(sin(frameCount * 0.003) * 0.14);
+    rotateY(sin(frameCount * 0.004) * 0.4);
   }
 
-  // 按 size 的大小把自己画出来
   draw(size) {
     push();
     this.float();
-    scale(size / 200); // normalize 以后模型大约 200 宽
-    for (let m = 0; m < this.models.length; m++) {
-      model(this.models[m]);
+
+    push(); noFill(); stroke(255); box(size); pop();//测试用
+    scale(size / 200);
+    noStroke();
+    noLights(); // 光泽和颜色已经画进纹理，避免网页灯光把配色压暗。
+    texture(this.artwork);
+    for (let part of this.models) {
+      model(part);
+    }
+
+    if (this.clearModels.length > 0) {
+      // 透明壳在内部零件之后画，让背后的零件可见。
+      let gl = drawingContext;
+      let wroteDepth = gl.getParameter(gl.DEPTH_WRITEMASK);
+      gl.depthMask(false);
+      for (let part of this.clearModels) {
+        model(part);
+      }
+      gl.depthMask(wroteDepth);
     }
     pop();
   }
 
-  // 默认的交互界面，可被子类覆盖
   drawDetail() {
     this.draw(min(width, height)*0.4)
   }
 
   click() {
-  }
-}
-
-// 对于有多个部件的模型（手机、磁带机），单独写一个子类
-class MultiPartItem extends Item {
-  constructor(name, files, previewSize, center, tilt) {
-    super(name, files);              // 先让 Item 的 constructor 存好 name / files / models
-    this.previewSize = previewSize;  // 整组模型原本多大
-    this.center = center;            // 整组模型的中心
-    this.tilt = tilt;                // 倾斜角度
-  }
-
-  // 覆盖父类的 load：部件不能各自 normalize，不然会散开
-  async load() {
-    for (let f = 0; f < this.files.length; f++) {
-      let part = await loadModel(this.files[f], { fileType: ".obj", normalize: false });
-      this.models.push(part);
-    }
-  }
-
-  // 覆盖父类的 draw：先缩放，再倾斜，再把整组的中心移到原点
-  draw(size) {
-    push();
-    this.float(); // 这个方法是从 Item 继承来的
-    scale(size / this.previewSize);
-    rotateX(this.tilt);
-    translate(-this.center[0], -this.center[1], -this.center[2]);
-    for (let m = 0; m < this.models.length; m++) {
-      model(this.models[m]);
-    }
-    pop();
   }
 }
 
@@ -99,23 +89,14 @@ const stages = [
   {
     title: "Portable electronics",
     items: [
-      new MultiPartItem(
-        "Flip phone",
-        ["3d-assets/phone-lid/phone-base.obj", "3d-assets/phone-lid/phone-lid.obj"],
-        1.08217,                  // previewSize
-        [0, 0.15274, 0.00824],    // center
-        -Math.PI / 4              // tilt
-      ),
-      new MultiPartItem(
+      new Item("Flip phone", ["3d-assets/phone-lid/phone-base.obj", "3d-assets/phone-lid/phone-lid.obj"]),
+      new Item(
         "Cassette player",
         [
           "3d-assets/tideline-cassette-player/cassette.obj",
           "3d-assets/tideline-cassette-player/cassette-door.obj",
           "3d-assets/tideline-cassette-player/cassette-player.obj"
-        ],
-        0.88321,
-        [-0.21945, -0.05434, -0.21156],
-        -Math.PI / 8
+        ]
       ),
       new Item("CD", ["3d-assets/cd/cd.obj"])
     ]
@@ -186,11 +167,13 @@ async function setup() {
     clocks.push(clock);
   }
 
-  // 加载 15 件物品：每件物品自己知道怎么加载自己
+  // 加载 15 件物品，共用同一套尺寸、坐标和贴图规则。
+  let propMaterials = await loadJSON("3d-assets/prop-materials.json");
   for (let s = 0; s < stages.length; s++) {
     let items = stages[s].items;
     for (let i = 0; i < items.length; i++) {
-      await items[i].load();
+      let item = items[i];
+      await item.load(propMaterials[item.files[0]]);
     }
   }
   //===================== load所有的model ===================

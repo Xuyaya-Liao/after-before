@@ -1,52 +1,6 @@
-# Blender 5.3.0 MTL File: '.cclab-export-snapshot.blend'
-# www.blender.org
-
-newmtl BLUE_HERBARIUM_|_Pale_mint_flyleaf
-Ns 44.099991
-Ka 1.000000 1.000000 1.000000
-Kd 0.715693 0.838799 0.730461
-Ks 0.500000 0.500000 0.500000
-Ke 0.000000 0.000000 0.000000
-Ni 1.500000
-d 1.000000
-illum 2
-
-newmtl BLUE_HERBARIUM_|_Printed_cobalt_botanical_cover
-Ns 448.899933
-Ka 0.040000 0.040000 0.040000
-Ks 0.500000 0.500000 0.500000
-Ke 0.000000 0.000000 0.000000
-Ni 1.500000
-d 1.000000
-illum 3
-map_Kd blue-herbarium-cover-y2k.png
-
-newmtl BLUE_HERBARIUM_|_Satin_silver_spiral
-Ns 504.100067
-Ka 0.820000 0.820000 0.820000
-Kd 0.485150 0.617207 0.760525
-Ks 0.500000 0.500000 0.500000
-Ke 0.000000 0.000000 0.000000
-Ni 1.500000
-d 1.000000
-illum 3
-
-newmtl BLUE_HERBARIUM_|_Violet_frosted_poly_cover_and_back
-Ns 504.100067
-Ka 0.040000 0.040000 0.040000
-Kd 0.111932 0.057805 0.658375
-Ks 0.500000 0.500000 0.500000
-Ke 0.000000 0.000000 0.000000
-Ni 1.500000
-d 0.830000
-illum 6
-
-newmtl BLUE_HERBARIUM_|_Warm_paper_edges
-Ns 28.900005
-Ka 1.000000 1.000000 1.000000
-Kd 0.854993 0.838799 0.693872
-Ks 0.500000 0.500000 0.500000
-Ke 0.000000 0.000000 0.000000
-Ni 1.500000
-d 1.000000
-illum 2
+newmtl atlas
+Ka 1 1 1
+Kd 1 1 1
+Ks 0 0 0
+illum 1
+map_Kd albedo.png
